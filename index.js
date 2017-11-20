@@ -17,8 +17,10 @@ var renderer = function(data, options, callback) {
 
   var cwd = process.cwd();
   var tmpPath = os.tmpdir();
+
   // Convert config of the entry to object.
-  Encore.configureRuntimeEnvironment('dev');
+  Encore.configureRuntimeEnvironment('production');
+  
 
   var entry = (function(entry) {
     if (_.isString(entry)) {
@@ -41,8 +43,10 @@ var renderer = function(data, options, callback) {
   if (!_.includes(entry, data.path)) {
     return callback(null, data.text);
   }
-
-  Encore.setOutputPath(tmpPath)
+  
+  
+  Encore.setManifestKeyPrefix(hexo.config.root)
+        .setOutputPath(tmpPath)
         .setPublicPath(hexo.config.root)
   ;
 

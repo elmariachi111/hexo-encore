@@ -1,27 +1,27 @@
-var _ = require('lodash');
-var Encore = require('@symfony/webpack-encore');
-var webpack = require('webpack');
+const _ = require('lodash');
+const Encore = require('@symfony/webpack-encore');
+const webpack = require('webpack');
 
-var extend = require('util')._extend;
-var os = require('os');
-var path = require('path');
-var MemoryFS = require('memory-fs');
-var fs = new MemoryFS();
+const extend = require('util')._extend;
+const os = require('os');
+const path = require('path');
+const MemoryFS = require('memory-fs');
+const fs = new MemoryFS();
 
-var renderer = function(data, options, callback) {
+const renderer = (data, options, callback) => {
 
-  var userConfig = extend(
+  const userConfig = extend(
     hexo.theme.config.webpack || {},
     hexo.config.webpack || {}
   );
 
-  var cwd = process.cwd();
-  var tmpPath = os.tmpdir();
+  const cwd = process.cwd();
+  const tmpPath = os.tmpdir();
+  const filename = path.basename(data.path);
+  const mode = userConfig.mode || 'production';
 
-  // Convert config of the entry to object.
-  Encore.configureRuntimeEnvironment('production');
+  Encore.configureRuntimeEnvironment(mode);
   
-
   var entry = (function(entry) {
     if (_.isString(entry)) {
         entry = [entry];
@@ -44,19 +44,16 @@ var renderer = function(data, options, callback) {
     return callback(null, data.text);
   }
   
-  
-  Encore.setManifestKeyPrefix(hexo.config.root)
-        .setOutputPath(tmpPath)
+  Encore.setOutputPath(tmpPath)
+        .setManifestKeyPrefix(hexo.config.root)
         .setPublicPath(hexo.config.root)
+        .enableSourceMaps( mode != 'production')
   ;
 
-  var config = Encore.getWebpackConfig();
-  var filename = path.basename(data.path);
-
-  var compiler = webpack(config);
+  const config = Encore.getWebpackConfig();
+  const compiler = webpack(config);
   compiler.outputFileSystem = fs;
-  
-  compiler.run(function(err, stats) {
+  compiler.run( (err, stats) => {
     
     let _stats = stats.toJson();
     if (err || stats.hasErrors()) {
@@ -64,11 +61,12 @@ var renderer = function(data, options, callback) {
         return callback(_stats.errors, 'Webpack Error.');
     }
     
-    var output = compiler.options.output;
-    var outputPath = path.join(output.path, filename);    
-    var contents = fs.readFileSync(outputPath).toString();
+    const output = compiler.options.output;
+    const outputPath = path.join(output.path, filename);    
+    const contents = fs.readFileSync(outputPath).toString();
 
     return callback(null, contents);
   });
 }
+
 hexo.extend.renderer.register('js', 'js', renderer);

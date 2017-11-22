@@ -10,10 +10,15 @@ $ npm install hexo-encore --save
 
 ## Options
 
-You can configure this plugin in `_config.yml` or your theme's `_config.yml`.
+You can configure this plugin in `_config.yml` and your theme's 
+`_config.yml`. The "mode" setting refer's to Encore's environments, you 
+can use "dev" or "production" here. "dev" currently emits inlined 
+sourcemaps whereas "production" uglifies, mangles and won't emit any 
+sourcemap.
 
 ``` yaml
 webpack:
+  mode: production
   entry: 'themes/my-theme/source/js/app.js'
 ```
 
